@@ -1,6 +1,6 @@
 const express = require("express");
-const jobQueue = require("../queues/jobQueue");
-
+const { jobQueue } = require("../queues/jobQueue");
+const { getJobStatus } = require("../jobstatus");
 const router = express.Router();
 
 router.post("/enqueue", async (req, res) => {
@@ -15,5 +15,7 @@ router.post("/enqueue", async (req, res) => {
 
   res.json({ jobId: job.id });
 });
+router.get("/:id", getJobStatus);
+
 
 module.exports = router;
