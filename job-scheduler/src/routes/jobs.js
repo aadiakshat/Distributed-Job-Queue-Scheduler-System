@@ -36,31 +36,6 @@ router.post("/enqueue", async (req, res) => {
   });
 });
 
-router.get("/:id", async (req, res) => {
-  const job = await jobQueue.getJob(String(req.params.id));
-
-  if (!job) {
-    return res.status(404).json({ message: "Not found" });
-  }
-
-  res.json({
-    id: job.id,
-    state: await job.getState(),
-    attempts: job.attemptsMade,
-    data: job.data
-  });
-});
-
-router.delete("/:id", async (req, res) => {
-  const job = await jobQueue.getJob(req.params.id);
-
-  if (!job) {
-    return res.status(404).json({ error: "Job not found" });
-  }
-
-  await job.remove();
-  res.json({ message: "Job removed successfully" });
-});
 
 router.get("/", async (req, res) => {
   const jobs = await jobQueue.getJobs([
@@ -102,6 +77,46 @@ router.get("/failed/jobs", async (req, res) => {
   );
 });
 
+router.post("/pause", async (req, res) => {
+  await jobQueue.pause();
+  res.json({ message: "Queue paused successfully" });
+});
+
+router.post("/resume", async (req,res) =>{
+  await jobQueue.resume();
+  res.json({message: "Resumed :)"});
+});
+
+router.get("/stats", async (req, res) => {
+  const counts = await jobQueue.getJobCounts();
+  res.json(counts);
+});
+
+router.get("/:id", async (req, res) => {
+  const job = await jobQueue.getJob(String(req.params.id));
+
+  if (!job) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
+  res.json({
+    id: job.id,
+    state: await job.getState(),
+    attempts: job.attemptsMade,
+    data: job.data
+  });
+});
+
+router.delete("/:id", async (req, res) => {
+  const job = await jobQueue.getJob(req.params.id);
+
+  if (!job) {
+    return res.status(404).json({ error: "Job not found" });
+  }
+
+  await job.remove();
+  res.json({ message: "Job removed successfully" });
+});
 
 
 module.exports = router;
